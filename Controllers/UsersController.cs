@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
+using ECommerce.Classes;
 using ECommerce.Models;
 
 namespace ECommerce.Controllers
@@ -39,9 +37,9 @@ namespace ECommerce.Controllers
         // GET: Users/Create
         public ActionResult Create()
         {
-            ViewBag.CityId = new SelectList(db.Cities, "CityId", "Name");
-            ViewBag.CompanyId = new SelectList(db.Companies, "CompanyId", "Name");
-            ViewBag.DepartmentsId = new SelectList(db.Departments, "DepartmentsId", "Name");
+            ViewBag.CityId = new SelectList(ComboboxHelper.GetAllCities(), "CityId", "Name");
+            ViewBag.CompanyId = new SelectList(ComboboxHelper.GetAllCompanies(), "CompanyId", "Name");
+            ViewBag.DepartmentsId = new SelectList(ComboboxHelper.GetAllDepartments(), "DepartmentsId", "Name");
             return View();
         }
 
@@ -50,18 +48,35 @@ namespace ECommerce.Controllers
         // Para obter mais detalhes, confira https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "UserId,UserName,FirstName,LastName,Address,Phone,Photo,CompanyId,DepartmentsId,CityId")] User user)
+        public ActionResult Create(User user)
         {
             if (ModelState.IsValid)
             {
                 db.Users.Add(user);
                 db.SaveChanges();
+
+                //Upload da imagem com o nome igual ao Id do registro. 
+                if (user.PhotoFile != null)
+                {
+                    var folder = "~/Content/Logos";
+                    var file = string.Format("{0}.jpg", user.UserId);
+
+                    var response = FilesHelper.UploadPhoto(user.PhotoFile, folder, file);
+                    if (response == true)
+                    {
+                        string pic = string.Format("{0}/{1}", folder, file);
+                        user.Photo = pic;
+                    }
+                }
+
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.CityId = new SelectList(db.Cities, "CityId", "Name", user.CityId);
-            ViewBag.CompanyId = new SelectList(db.Companies, "CompanyId", "Name", user.CompanyId);
-            ViewBag.DepartmentsId = new SelectList(db.Departments, "DepartmentsId", "Name", user.DepartmentsId);
+            ViewBag.CityId = new SelectList(ComboboxHelper.GetAllCities(), "CityId", "Name", user.CityId);
+            ViewBag.CompanyId = new SelectList(ComboboxHelper.GetAllCompanies(), "CompanyId", "Name", user.CompanyId);
+            ViewBag.DepartmentsId = new SelectList(ComboboxHelper.GetAllDepartments(), "DepartmentsId", "Name", user.DepartmentsId);
             return View(user);
         }
 
@@ -77,9 +92,9 @@ namespace ECommerce.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.CityId = new SelectList(db.Cities, "CityId", "Name", user.CityId);
-            ViewBag.CompanyId = new SelectList(db.Companies, "CompanyId", "Name", user.CompanyId);
-            ViewBag.DepartmentsId = new SelectList(db.Departments, "DepartmentsId", "Name", user.DepartmentsId);
+            ViewBag.CityId = new SelectList(ComboboxHelper.GetAllCities(), "CityId", "Name", user.CityId);
+            ViewBag.CompanyId = new SelectList(ComboboxHelper.GetAllCompanies(), "CompanyId", "Name", user.CompanyId);
+            ViewBag.DepartmentsId = new SelectList(ComboboxHelper.GetAllDepartments(), "DepartmentsId", "Name", user.DepartmentsId);
             return View(user);
         }
 
@@ -88,17 +103,34 @@ namespace ECommerce.Controllers
         // Para obter mais detalhes, confira https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "UserId,UserName,FirstName,LastName,Address,Phone,Photo,CompanyId,DepartmentsId,CityId")] User user)
+        public ActionResult Edit(User user)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(user).State = EntityState.Modified;
                 db.SaveChanges();
+
+                //Upload da imagem com o nome igual ao Id do registro. 
+                if (user.PhotoFile != null)
+                {
+                    var folder = "~/Content/Logos";
+                    var file = string.Format("{0}.jpg", user.UserId);
+
+                    var response = FilesHelper.UploadPhoto(user.PhotoFile, folder, file);
+                    if (response == true)
+                    {
+                        string pic = string.Format("{0}/{1}", folder, file);
+                        user.Photo = pic;
+                    }
+                }
+
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.CityId = new SelectList(db.Cities, "CityId", "Name", user.CityId);
-            ViewBag.CompanyId = new SelectList(db.Companies, "CompanyId", "Name", user.CompanyId);
-            ViewBag.DepartmentsId = new SelectList(db.Departments, "DepartmentsId", "Name", user.DepartmentsId);
+            ViewBag.CityId = new SelectList(ComboboxHelper.GetAllCities(), "CityId", "Name", user.CityId);
+            ViewBag.CompanyId = new SelectList(ComboboxHelper.GetAllCompanies(), "CompanyId", "Name", user.CompanyId);
+            ViewBag.DepartmentsId = new SelectList(ComboboxHelper.GetAllDepartments(), "DepartmentsId", "Name", user.DepartmentsId);
             return View(user);
         }
 
@@ -136,5 +168,24 @@ namespace ECommerce.Controllers
             }
             base.Dispose(disposing);
         }
+
+        #region [Métodos Auxiliares]
+        //CONTROLE DE LIST VIEW EM CASCATA
+        public JsonResult GetCities(int departmentId)
+        {
+            if (departmentId != 0)
+            {
+                db.Configuration.ProxyCreationEnabled = false;
+                var cities = db.Cities.Where(x => x.DepartmentsId == departmentId);
+                return Json(cities);
+            }
+            else
+            {
+                db.Configuration.ProxyCreationEnabled = false;
+                var cities = db.Cities.ToList();
+                return Json(cities);
+            }
+        }
+        #endregion
     }
 }

@@ -43,6 +43,17 @@ namespace ECommerce.Classes
             return cities = cities.OrderBy(x => x.Name).ToList();
         }
 
+        public static List<Company> GetAllCompanies()
+        {
+            var companies = db.Companies.ToList();
+            companies.Add(new Company
+            {
+                CompanyId = 0, 
+                Name = "[ Selecione uma Empresa ]"
+            });
+            return companies = companies.OrderBy(x => x.Name).ToList();
+        }
+
         public void Dispose()
         {
             //throw new NotImplementedException();

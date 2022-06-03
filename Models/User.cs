@@ -54,16 +54,17 @@ namespace ECommerce.Models
         [Required(ErrorMessage = "O campo Empresa é requerido!")]
         [Display(Name = "Empresa")]
         public int CompanyId { get; set; }
-        public virtual Company Company { get; set; }
 
         [Required(ErrorMessage = "O campo Departamento é requerido!")]
         [Display(Name = "Departamento")]
         public int DepartmentsId { get; set; }
-        public virtual Departments Department { get; set; }
-
+        
         [Required(ErrorMessage = "O campo Cidade é requerido!")]
         [Display(Name = "Cidade")]
         public int CityId { get; set; }
+
+        public virtual Company Company { get; set; }
+        public virtual Departments Department { get; set; }
         public virtual City Cities { get; set; }
     }
 }

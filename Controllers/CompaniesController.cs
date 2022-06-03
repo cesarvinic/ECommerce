@@ -72,14 +72,13 @@ namespace ECommerce.Controllers
                 //Upload da imagem com o nome igual ao Id do registro. 
                 if (company.LogoFile != null)
                 {
-                    var pic = string.Empty;
                     var folder = "~/Content/Logos";
                     var file = string.Format("{0}.jpg", company.CompanyId);
 
                     var response = FilesHelper.UploadPhoto(company.LogoFile, folder, file);
                     if (response == true)
                     {
-                        pic = string.Format("{0}/{1}", folder, file);
+                        string pic = string.Format("{0}/{1}", folder, file);
                         company.Logo = pic;
                     }
                 }
@@ -122,14 +121,13 @@ namespace ECommerce.Controllers
             {
                 if (company.LogoFile != null)
                 {
-                    var pic = string.Empty;
                     var folder = "~/Content/Logos";
                     var file = string.Format("{0}.jpg", company.CompanyId);
 
                     var response = FilesHelper.UploadPhoto(company.LogoFile, folder, file);
                     if (response == true)
                     {
-                        pic = string.Format("{0}/{1}", folder, file);
+                        string pic = string.Format("{0}/{1}", folder, file);
                         company.Logo = pic;
                     }
                 }
