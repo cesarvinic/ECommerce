@@ -181,8 +181,10 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Classes\ComboboxHelper.cs" />
+    <Compile Include="Classes\ECommerceContext.cs" />
     <Compile Include="Classes\FilesHelper.cs" />
     <Compile Include="Classes\MailHelper.cs" />
+    <Compile Include="Classes\UserHelper.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CitiesController.cs" />
     <Compile Include="Controllers\CompaniesController.cs" />
